@@ -12,25 +12,6 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 RayCaster* rc;
 
-// Forward declarations of functions included in this code module:
-
-void printHeader(ofstream* myFile, int width, int height);
-
-void readSetupFile(std::string file, Window* view, Point* eye, Color* ambient, Light* light);
-void readShapeFile(std::string file, std::vector<Shape*>* list);
-
-// I have a feeling that most of these functions should be placed in another file, just not sure where to put them
-Sphere* parseSphere(std::string line, bool* good);
-Window parseWindow(std::string line, bool* good);
-Point parsePoint(std::string line, bool* good);
-Light parseLight(std::string line, bool* good);
-Color parseColor(std::string line, bool* good);
-vector<float> parseFloats(std::string line, int expected);
-
-std::vector<std::string> split(const std::string &s, char delim);
-void &split(const std::string &s, char delim, std::vector<std::string> &elems);
-
-
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -51,8 +32,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	Color* ambientColor = new Color(1, 1, 1);
 	Light* pointLight = new Light(Point(0, 0, -100), Color(1.5, 1.5, 1.5));
 
-	std::vector<Shape*> shapes = std::vector<Shape*>();
-	readShapeFile("", &shapes);
+	vector<Shape*> *shapes = new vector<Shape*>();
+	readTriangles("C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\points.in",
+		"C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\triangles.in", *shapes);
 
 	rc = new RayCaster(*view, *eye, shapes, *ambientColor, *pointLight);
 
@@ -221,150 +203,4 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return (INT_PTR)FALSE;
-}
-
-
-
-void readSetupFile(std::string file, Window* view, Point* eye, Color* ambient, Light* light){
-	// todo: check if successful input on each line
-	
-	string line;
-	bool good = true;
-
-	std::ifstream f(file);
-
-	if (f.is_open()){
-		getline(f, line);
-		*view = parseWindow(line, &good);
-
-		getline(f, line);
-		*eye = parsePoint(line, &good);
-
-		getline(f, line);
-		*ambient = parseColor(line, &good);
-
-		getline(f, line);
-		*light = parseLight(line, &good);
-	}
-
-	f.close();
-}
-void readShapeFile(string pointsFile, string verticies, vector<Triangle>* list){
-	string line;
-
-	ifstream f(pointsFile);
-	int count = 0;
-	vector<Point*> points = vector<Point*>();
-	if (f.is_open()){
-		while(getline(f, line)){
-			bool good = false;
-			Point* temp = parsePoint(line, &good);
-
-			if (good == true){
-				points.push_back(temp);
-			}
-		}
-		f.close();
-	}
-
-	//list->push_back(new Triangle(Color(0,0,1), Finish(.2, .4, .5, .05), Point(0,0,0), Point(1,0,-2), Point(0,1,-1)));
-	//list->push_back(new Triangle(Color(1,0,0), Finish(.2, .4, .5, .05), Point(4,4,0), Point(4,0,-10), Point(0,4,-10)));
-	//list->push_back(new Triangle(Color(0,1,0), Finish(.2, .4, .5, .05), Point(1,2,0), Point(-1,0,0), Point(0,-1,0)));
-	//list->push_back(new Sphere(Point(-1, 1, 5), 2, Color(1, 0, 1), Finish(.2, .4, .5, .05)));
-	//list->clear();
-
-	//list->push_back(new Triangle(Color(1,0,0), Finish(.2, .4, .5, .05), Point(0,0,-1), Point(0,1,0), Point(1,0,0)));
-	//list->push_back(new Triangle(Color(1,0,0), Finish(.2, .4, .5, .05), Point(0,0,-1), Point(-1,0,0), Point(0,1,0)));
-	//list->push_back(new Triangle(Color(1,0,0), Finish(.2, .4, .5, .05), Point(0,0,-1), Point(0,-1,0), Point(-1,0,0)));
-	//list->push_back(new Triangle(Color(1,0,0), Finish(.2, .4, .5, .05), Point(0,0,-1), Point(1,0,0), Point(0,-1,0)));
-
-	//list->push_back(new Triangle(Color(0,0,0), Finish(.2, .4, .5, .05), Point(0,0,0), Point(0,1,0), Point(1,0,0)));
-	//list->push_back(new Triangle(Color(0,0,0), Finish(.2, .4, .5, .05), Point(0,0,0), Point(-1,0,0), Point(0,1,0)));
-	//list->push_back(new Triangle(Color(0,0,0), Finish(.2, .4, .5, .05), Point(0,0,0), Point(0,-1,0), Point(-1,0,0)));
-	//list->push_back(new Triangle(Color(0,0,0), Finish(.2, .4, .5, .05), Point(0,0,0), Point(1,0,0), Point(0,-1,0)));
-
-	//list->push_back(new Sphere(Point(8, -10, 110), 100, Color(.2, .2, .6), Finish(.4, .8, 0, .05)));
-}
-
-Sphere* parseSphere(std::string line, bool* good){
-	vector<float> vals = parseFloats(line, 11);
-	if (vals.size() != 0){
-		*good = true;
-		return new Sphere(Point(vals[0], vals[1], vals[2]), vals[3], Color(vals[4], vals[5], vals[6]), Finish(vals[7], vals[8], vals[9], vals[10]));
-	}
-
-	*good = false;
-	return new Sphere();
-}
-Window parseWindow(std::string line, bool* good){
-	vector<float> vals = parseFloats(line, 6);
-	if (vals.size() != 0){
-		*good = true;
-		return Window(vals[0], vals[1], vals[2], vals[3], (int)vals[4], (int)vals[5]);
-	}
-
-	*good = false;
-	return Window(0,0,0,0,0,0);
-}
-Point* parsePoint(std::string line, bool* good){
-	vector<float> vals = parseFloats(line, 3);
-	if (vals.size() != 0){
-		*good = true;
-		return new Point(vals[0], vals[1], vals[2]);
-	}
-
-	*good = false;
-	return new Point(0,0,0);
-}
-Light parseLight(std::string line, bool* good){
-		vector<float> vals = parseFloats(line, 6);
-	if (vals.size() != 0){
-		*good = true;
-		return Light(Point(vals[0], vals[1], vals[2]), Color(vals[3], vals[4], vals[5]));
-	}
-
-	*good = false;
-	return Light(Point(0,0,0), Color(0,0,0));
-}
-Color parseColor(std::string line, bool* good){
-	vector<float> vals = parseFloats(line, 3);
-	if (vals.size() != 0){
-		*good = true;
-		return Color(vals[0], vals[1], vals[2]);
-	}
-
-	*good = false;
-	return Color(0,0,0);
-}
-vector<float> parseFloats(std::string line, int expected){
-	vector<string> chars = split(line, ' ');
-	vector<float> nums = vector<float>();
-
-	if (chars.size() == expected){
-		try{
-			for (int i = 0; i < expected; ++i){
-				float f = std::stof(chars[i]);
-				nums.push_back(f);
-			}
-		}
-		catch (invalid_argument e){
-			return vector<float>();
-		}
-	}
-
-	return nums;
-}
-
-std::vector<std::string> split(const std::string &s, char delim) {
-    std::vector<std::string> elems;
-    split(s, delim, elems);
-    return elems;
-}
-void &split(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
 }

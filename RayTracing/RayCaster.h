@@ -4,7 +4,7 @@ using namespace std;
 
 class RayCaster {
 public:
-	RayCaster(Window view, Point eyePoint, std::vector<Shape*> shapeList, Color ambientColor, Light pointLight);
+	RayCaster(Window view, Point eyePoint, std::vector<Shape*> *shapeList, Color ambientColor, Light pointLight);
 
 	Color castRay(Intersection* hitPointMem);
 	void castAllRays();

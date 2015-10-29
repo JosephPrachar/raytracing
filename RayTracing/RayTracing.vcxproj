@@ -83,6 +83,7 @@
     <ClInclude Include="Finish.h" />
     <ClInclude Include="Intersection.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Parsing.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RayCaster.h" />
@@ -102,6 +103,7 @@
     <ClCompile Include="Finish.cpp" />
     <ClCompile Include="Intersection.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Parsing.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="RayCaster.cpp" />

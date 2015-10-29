@@ -2,10 +2,10 @@
 using namespace std;
 #include <vector>
 
-RayCaster::RayCaster(Window view, Point eyePoint, vector<Shape*> shapeList, Color ambientColor, Light pointLight):
+RayCaster::RayCaster(Window view, Point eyePoint, vector<Shape*> *shapeList, Color ambientColor, Light pointLight):
 	mView(view),
 	mEye(eyePoint),
-	mShapeList(shapeList),
+	mShapeList(*shapeList),
 	mAmbient(ambientColor),
 	mPointLight(pointLight)
 {
