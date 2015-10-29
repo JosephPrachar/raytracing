@@ -27,14 +27,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	Window* view = new Window(-10, 10, -7.5, 7.5, 1024, 768);
-	Point* eye = new Point(0, 0, -14);
+	Window* view = new Window(-60, 100, -40, 120, 1024, 768);
+	Point* eye = new Point(0, 0, 80);
 	Color* ambientColor = new Color(1, 1, 1);
-	Light* pointLight = new Light(Point(0, 0, -100), Color(1.5, 1.5, 1.5));
+	Light* pointLight = new Light(Point(0, 0, 100), Color(1.5, 1.5, 1.5));
 
 	vector<Shape*> *shapes = new vector<Shape*>();
-	readTriangles("C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\points.in",
-		"C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\triangles.in", *shapes);
+	readTriangles("C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\meshPoints.in",
+		"C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\meshVerticies.in", *shapes);
 
 	rc = new RayCaster(*view, *eye, shapes, *ambientColor, *pointLight);
 

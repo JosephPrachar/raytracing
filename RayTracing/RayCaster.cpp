@@ -14,7 +14,7 @@ RayCaster::RayCaster(Window view, Point eyePoint, vector<Shape*> *shapeList, Col
 
 	this->computeTime = -1;
 
-	bitMap = new byte[mView.width * mView.height * 3];
+	bitMap = NULL;
 }
 
 void RayCaster::castAllRays(){
@@ -27,8 +27,15 @@ void RayCaster::castAllRays(){
 	// allocate memory for findIntersectionPoints
 	Intersection* hitPointMem = new Intersection[this->mShapeList.size()];
 
+	if (bitMap == NULL) {
+		bitMap = new byte[mView.width * mView.height * 3];
+		if (bitMap == NULL) exit(1);
+	} else {
+		return;
+	}
+
 	// check for valid memory allocation
-	if (hitPointMem == NULL || bitMap == NULL){
+	if (hitPointMem == NULL){
 		exit(1);
 	}
 
@@ -45,6 +52,7 @@ void RayCaster::castAllRays(){
 			//result =  Color(1,1,1);
 
 		// fill buffer with current pixel info
+#pragma warning(suppress: 6386)
 		bitMap[count] = (byte)result.getRed();
 		count++;
 		bitMap[count] = (byte)result.getGreen();
@@ -155,60 +163,75 @@ Color RayCaster::computeAmbientLight(Shape* shape){
 }
 
 Color RayCaster::computePointAndSpecular(Intersection intersect, Intersection* hitPointMem){
-	// do math...
+	//// do math...
+
+	//Vector normal = intersect.mShape->normalAtPoint(intersect.mPoint);
+	//Vector scaledNormal = normal.copy();
+	//scaledNormal.scale(.01);
+
+	//Point pSubE = intersect.mPoint.copy();
+	//pSubE.translate(scaledNormal);
+
+	//Vector lSubDir = Point::vectorFromTo(pSubE, this->mPointLight.getPoint());
+	//lSubDir.normalize();
+
+	//float lDotN = normal.dotWith(lSubDir);
+
+	//if (lDotN <= 0){
+	//	return Color(0,0,0);
+	//}
+
+	//Ray rayToLight = Ray(pSubE, lSubDir);
+
+	//int length = this->findIntersectionPoints(rayToLight, hitPointMem);
+
+	//if (length > 0){
+	//	float distToLight = pSubE.distance(this->mPointLight.getPoint());
+	//	for (int i = 0; i < length; ++i){
+	//		if (pSubE.distance(hitPointMem[i].mPoint) < distToLight){
+	//			return Color(0,0,0);
+	//		}
+	//	}
+	//}
+
+	//float dotTimesDiffuse = lDotN * intersect.mShape->getFinish().getDiffuse();
+	//Color pointColor = intersect.mShape->getColor().copy();
+	//pointColor.multiply(this->mPointLight.getColor());
+	//pointColor.scale(dotTimesDiffuse);
+
+	//Vector temp = normal.copy();
+	//temp.scale(2*lDotN);
+	//Vector reflect = lSubDir.copy();
+	//reflect.subtract(temp);
+
+	//Vector vSubDir = Point::vectorFromTo(this->mEye, pSubE);
+	//vSubDir.normalize();
+
+	//float specIntense = reflect.dotWith(vSubDir);
+	//Color specColor = Color(0,0,0);
+	//if (specIntense > 0){
+	//	float scale = intersect.mShape->getFinish().getSpecular() * pow(specIntense, (1.0 / intersect.mShape->getFinish().getRoughness()));
+	//	specColor = this->mPointLight.getColor().copy();
+	//	specColor.scale(scale);
+	//}
+	////return specColor;
+	//pointColor.add(specColor);
+	//return pointColor;
 
 	Vector normal = intersect.mShape->normalAtPoint(intersect.mPoint);
-	Vector scaledNormal = normal.copy();
-	scaledNormal.scale(.01);
+	Vector lightToPoint = Point::vectorFromTo(this->mPointLight.getPoint(), intersect.mPoint);
+	normal.normalize();
+	lightToPoint.normalize();
+	float cosTheta = normal.dotWith(lightToPoint);
 
-	Point pSubE = intersect.mPoint.copy();
-	pSubE.translate(scaledNormal);
-
-	Vector lSubDir = Point::vectorFromTo(pSubE, this->mPointLight.getPoint());
-	lSubDir.normalize();
-
-	float lDotN = normal.dotWith(lSubDir);
-
-	if (lDotN <= 0){
+	if (cosTheta <= 0)
 		return Color(0,0,0);
-	}
 
-	Ray rayToLight = Ray(pSubE, lSubDir);
-
-	int length = this->findIntersectionPoints(rayToLight, hitPointMem);
-
-	if (length > 0){
-		float distToLight = pSubE.distance(this->mPointLight.getPoint());
-		for (int i = 0; i < length; ++i){
-			if (pSubE.distance(hitPointMem[i].mPoint) < distToLight){
-				return Color(0,0,0);
-			}
-		}
-	}
-
-	float dotTimesDiffuse = lDotN * intersect.mShape->getFinish().getDiffuse();
+	float dotTimesDiffuse = cosTheta * intersect.mShape->getFinish().getDiffuse();
 	Color pointColor = intersect.mShape->getColor().copy();
 	pointColor.multiply(this->mPointLight.getColor());
 	pointColor.scale(dotTimesDiffuse);
-
-	Vector temp = normal.copy();
-	temp.scale(2*lDotN);
-	Vector reflect = lSubDir.copy();
-	reflect.subtract(temp);
-
-	Vector vSubDir = Point::vectorFromTo(this->mEye, pSubE);
-	vSubDir.normalize();
-
-	float specIntense = reflect.dotWith(vSubDir);
-	Color specColor = Color(0,0,0);
-	if (specIntense > 0){
-		float scale = intersect.mShape->getFinish().getSpecular() * pow(specIntense, (1.0 / intersect.mShape->getFinish().getRoughness()));
-		specColor = this->mPointLight.getColor().copy();
-		specColor.scale(scale);
-	}
-	//return specColor;
-	pointColor.add(specColor);
-	return pointColor;
+	return pointColor;	
 }
 
 void RayCaster::advanceCastPoint(){
