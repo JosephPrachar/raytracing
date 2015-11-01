@@ -32,7 +32,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	Color* ambientColor = new Color(1, 1, 1);
 	Light* pointLight = new Light(Point(0, 0, 100), Color(1.5, 1.5, 1.5));
 
-	vector<Shape*> *shapes = new vector<Shape*>();
+	vector<Triangle*> *shapes = new vector<Triangle*>();
 	readTriangles("C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\meshPoints.in",
 		"C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\meshVerticies.in", *shapes);
 

@@ -10,7 +10,8 @@
 //	computeNormal();
 //}
 Triangle::Triangle(Color color, Finish finish, Point one, Point two, Point three):
-	Shape(color, finish),
+	mColor(color),
+	mFinish(finish),
 	mOne(one),
 	mTwo(two),
 	mThree(three)
@@ -18,29 +19,40 @@ Triangle::Triangle(Color color, Finish finish, Point one, Point two, Point three
 	computeNormal();
 }
 Triangle::Triangle():
-	Shape(Color(), Finish())
+	mColor(),
+	mFinish(),
+	mOne(),
+	mTwo(),
+	mThree()
 {
 }
 
 Point* Triangle::getPoints() const{
 	return NULL;
 }
+Color Triangle::getColor() const{
+	return this->mColor;
+}
+Finish Triangle::getFinish() const{
+	return this->mFinish;
+}
 
-Point Triangle::rayIntersection(Ray toIntersect, bool* hitsTriangle){
+Point* Triangle::rayIntersection(Ray toIntersect){
 	float scalar = 0;
-	*hitsTriangle = triangleIntersection(toIntersect, &scalar);
+	bool hitsTriangle = triangleIntersection(toIntersect, &scalar);
 
-	if (*hitsTriangle){
-		Vector scaled = toIntersect.getDirection().copy();
-		scaled.scale(scalar);
+	if (hitsTriangle){
+		Vector* scaled = toIntersect.getDirection().copy();
+		scaled->scale(scalar);
 
-		Point intersection = toIntersect.getPoint().copy();
-		intersection.translate(scaled);
-		//cout<< this->mOne.getX();
+		Point* intersection = toIntersect.getPoint().copy();
+		intersection->translate(*scaled);
+
+		delete scaled;
 		return intersection;
 	}
 
-	return Point();
+	return NULL;
 }
 bool Triangle::triangleIntersection(Ray toIntersect, float* out){
 	// Möller–Trumbore intersection algorithm
@@ -48,6 +60,7 @@ bool Triangle::triangleIntersection(Ray toIntersect, float* out){
 	// the Wikipedia page of the same name at
 	// http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 
+	// todo make these class vars for increased speed
 	Vector edge1, edge2;
 	Vector P, Q, T;
 	float det, inv_det, u, v;
@@ -85,16 +98,18 @@ Vector Triangle::normalAtPoint(Point pt){
 	return this->mNormal;
 }
 void Triangle::alignNormalWithEyePt(Point eye){
-	Point avg = mOne.copy();
-	
-	avg.translate(Point::vectorFromTo(Point(0,0,0), mTwo));
-	avg.translate(Point::vectorFromTo(Point(0,0,0), mThree));
-	Vector v = Point::vectorFromTo(Point(0,0,0), avg);
+	Point* avg = mOne.copy();	
+	avg->translate(Point::vectorFromTo(Point(0,0,0), mTwo));
+	avg->translate(Point::vectorFromTo(Point(0,0,0), mThree));
+	Vector v = Point::vectorFromTo(Point(0,0,0), *avg);
 	v.scale(.3);
-	avg = Point(0,0,0);
-	avg.translate(v);
+	delete avg;
+	avg = NULL;
 
-	Vector eyeToCenter = Point::vectorFromTo(avg, eye);
+	Point origin = Point(0,0,0);
+	origin.translate(v);
+
+	Vector eyeToCenter = Point::vectorFromTo(origin, eye);
 	float dot = eyeToCenter.dotWith(this->mNormal);
 
 	if (dot < 0)
@@ -105,7 +120,7 @@ void Triangle::alignNormalWithEyePt(Point eye){
 }
 
 Triangle* Triangle::copy(){
-	return new Triangle(this->mColor.copy(), this->mFinish.copy(), mOne.copy(), mTwo.copy(), mThree.copy());
+	return new Triangle(mColor, mFinish, mOne, mTwo, mThree);
 }
 
 void Triangle::computeNormal(){
@@ -113,5 +128,4 @@ void Triangle::computeNormal(){
 	Vector edge2 = Point::differenceVector(this->mThree, this->mOne);
 
 	this->mNormal = edge1.crossWith(edge2);
-	//this->mNormal.scale(-1);
 }

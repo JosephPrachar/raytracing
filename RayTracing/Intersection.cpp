@@ -1,19 +1,18 @@
 #include "stdafx.h"
 
-Intersection::Intersection(Shape* sphere, Point point):
+Intersection::Intersection(Triangle sphere, Point point):
 	mShape(sphere),
 	mPoint(point)
 {
-
 }
 Intersection::Intersection():
-	mPoint(0,0,0)
+	mPoint(0,0,0),
+	mShape()
 {
-	mShape = &Sphere(Point(.5, 1.5, -3), .5, Color(1, 0, 0), Finish(.4, .4, .5, .05));
 }
 
-Intersection Intersection::copy(){
-	return Intersection(mShape->copy(), mPoint.copy());
+Intersection* Intersection::copy(){
+	return new Intersection(this->mShape, this->mPoint);
 }
 
 std::wstringstream& operator<<(std::wstringstream& os, const Intersection& obj){

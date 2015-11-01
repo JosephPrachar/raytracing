@@ -11,7 +11,7 @@ public:
 	float getZ() const;
 
 	void translate(Vector toAdd);
-	Point copy();
+	Point* copy();
 	float distance(Point other);
 	float distanceSquared(Point other);
 

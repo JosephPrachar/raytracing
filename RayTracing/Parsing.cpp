@@ -24,7 +24,7 @@ void readSetupFile(string setupFile, Window* view, Point* eye, Color* ambient, L
 
 	f.close();
 }
-void readTriangles(string pointsFile, string verticiesFile, vector<Shape*> &list) {
+void readTriangles(string pointsFile, string verticiesFile, vector<Triangle*> &list) {
 	Color color = Color(1, 0, 0);
 	Finish finish = Finish(.2, .4, .5, .05);
 
@@ -98,15 +98,6 @@ void readPoints(string pointsFile, vector<Point> &points) {
 	}
 }
 
-Sphere* parseSphere(string line) {
-	vector<float> vals = vector<float>();
-	parseFloats(line, 11, vals);
-	if (vals.size() != 0){
-		return new Sphere(Point(vals[0], vals[1], vals[2]), vals[3], Color(vals[4], vals[5], vals[6]), Finish(vals[7], vals[8], vals[9], vals[10]));
-	} else {
-		return NULL;
-	}
-}
 Window* parseWindow(std::string line) {
 	vector<float> vals = vector<float>();
 	parseFloats(line, 6, vals);

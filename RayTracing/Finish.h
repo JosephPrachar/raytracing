@@ -11,7 +11,7 @@ public:
 	float getSpecular() const;
 	float getRoughness() const;
 
-	Finish copy();
+	Finish* copy();
 private:
 	float mAmbient;
 	float mDiffuse;

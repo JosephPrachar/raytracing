@@ -2,7 +2,7 @@
 using namespace std;
 #include <vector>
 
-RayCaster::RayCaster(Window view, Point eyePoint, vector<Shape*> *shapeList, Color ambientColor, Light pointLight):
+RayCaster::RayCaster(Window view, Point eyePoint, vector<Triangle*> *shapeList, Color ambientColor, Light pointLight):
 	mView(view),
 	mEye(eyePoint),
 	mShapeList(*shapeList),
@@ -18,9 +18,6 @@ RayCaster::RayCaster(Window view, Point eyePoint, vector<Shape*> *shapeList, Col
 }
 
 void RayCaster::castAllRays(){
-	std::clock_t start;
-	start = std::clock();
-
 	// calculate total size of buffer
 	long size = mView.width * mView.height * 3;
 
@@ -28,10 +25,14 @@ void RayCaster::castAllRays(){
 	Intersection* hitPointMem = new Intersection[this->mShapeList.size()];
 
 	if (bitMap == NULL) {
-		bitMap = new byte[mView.width * mView.height * 3];
+		bitMap = new byte[size];
 		if (bitMap == NULL) exit(1);
 	} else {
 		return;
+	}
+
+	for (int i = 0; i < size; i++) {
+		bitMap[i] = 0;
 	}
 
 	// check for valid memory allocation
@@ -39,44 +40,23 @@ void RayCaster::castAllRays(){
 		exit(1);
 	}
 
-	// for the console 'progress bar'
-	long count = 0;
-	float percent = .02f;
+	int count = 0;
 
-	while (count < size){
-		Color result = this->castRay(hitPointMem);
-		result.scaleForPrinting();
-
-		//if (this->curX == 0 || this->curY == 0)
-
-			//result =  Color(1,1,1);
+	while (count < size) {
+		Color* result = this->castRay(hitPointMem);
+		result->scaleForPrinting();
 
 		// fill buffer with current pixel info
-#pragma warning(suppress: 6386)
-		bitMap[count] = (byte)result.getRed();
+		bitMap[count] = (byte)result->getRed();
 		count++;
-		bitMap[count] = (byte)result.getGreen();
+		bitMap[count] = (byte)result->getGreen();
 		count++;
-		bitMap[count] = (byte)result.getBlue();
+		bitMap[count] = (byte)result->getBlue();
 		count++;
 
+		delete result; // TODO: this gonna be slow
 		this->advanceCastPoint();
-
-		// for the console 'progress bar'
-		if (count % 1000 == 0 || count % 1000 == 1 || count % 1000 == 2){
-			if ((float)count / (float)size > percent){
-				std::cout << '=';
-				percent += .02;
-			}
-		}
 	}
-
-	this->computeTime = (std::clock() - start)/(double)CLOCKS_PER_SEC;
-
-	std::cout << "Done Computing";
-
-	// output buffer to file
-	//this->printPicture(hdc, bitMap);
 
 	// free memory
 	delete[] hitPointMem;
@@ -95,9 +75,9 @@ void RayCaster::printPicture(HDC hdc){
 	}
 }
 
-Color RayCaster::castRay(Intersection* hitPointMem){
+Color* RayCaster::castRay(Intersection* hitPointMem){
 
-	Color toReturn = Color(1.0, 1.0, 1.0);
+	Color* toReturn = new Color(1.0, 1.0, 1.0);
 
 	Point pt = Point(curX, curY, 0);
 	Vector v = Point::vectorFromTo(this->mEye, pt);
@@ -111,14 +91,16 @@ Color RayCaster::castRay(Intersection* hitPointMem){
 			iSmall = this->shortestDistFromPoint(hitPointMem, length);
 		}
 		// extract closest intersection point so that hitPointsMem can be reused in findIntersectionPoints call by the specular color computation
-		Intersection intersect = hitPointMem[iSmall].copy();		
+		Intersection *intersect = hitPointMem[iSmall].copy();		
 
-		Color ambientColorAddition = this->computeAmbientLight(intersect.mShape);
-		Color pointLighting = computePointAndSpecular(intersect, hitPointMem);
-		ambientColorAddition.add(pointLighting);
+		Color* ambientColorAddition = this->computeAmbientLight(&intersect->mShape);
+		Color* pointLighting = computePointAndSpecular(intersect, hitPointMem);
+		ambientColorAddition->add(*pointLighting);
 
 		toReturn = ambientColorAddition;
-		//toReturn = intersect.mShape->getColor();
+		delete pointLighting;
+		delete intersect;
+		//toReturn = intersect.mShape->getColor(); // uncomment for no lighting effects
 	}
 
 	return toReturn;
@@ -143,26 +125,24 @@ int RayCaster::findIntersectionPoints(Ray ray, Intersection* hitPointMem){
 	int count = 0;
 	for (int i = 0; i < this->mShapeList.size(); ++i){
 		bool hit = false;
-		Point pt = this->mShapeList[i]->rayIntersection(ray, &hit);
-		if (hit == true){
-			//cout<<i << " ";
-			hitPointMem[count] = Intersection(this->mShapeList[i], pt);
+		Point* pt = this->mShapeList[i]->rayIntersection(ray);
+		if (pt != NULL){
+			hitPointMem[count] = Intersection(*this->mShapeList[i], *pt); // TODO: make intersection take triangle ptr again
 			count++;
-		}		
+			delete pt;
+		}
 	}
-	//if (count !=0)
-	//	cout<<count;
 	return count;
 }
 
-Color RayCaster::computeAmbientLight(Shape* shape){
-	Color toReturn = shape->getColor().copy();
-	toReturn.multiply(this->mAmbient);
-	toReturn.scale(shape->getFinish().getAmbient());
+Color* RayCaster::computeAmbientLight(Triangle* shape){
+	Color* toReturn = shape->getColor().copy();
+	toReturn->multiply(this->mAmbient);
+	toReturn->scale(shape->getFinish().getAmbient());
 	return toReturn;
 }
 
-Color RayCaster::computePointAndSpecular(Intersection intersect, Intersection* hitPointMem){
+Color* RayCaster::computePointAndSpecular(Intersection* intersect, Intersection* hitPointMem){
 	//// do math...
 
 	//Vector normal = intersect.mShape->normalAtPoint(intersect.mPoint);
@@ -218,19 +198,20 @@ Color RayCaster::computePointAndSpecular(Intersection intersect, Intersection* h
 	//pointColor.add(specColor);
 	//return pointColor;
 
-	Vector normal = intersect.mShape->normalAtPoint(intersect.mPoint);
-	Vector lightToPoint = Point::vectorFromTo(this->mPointLight.getPoint(), intersect.mPoint);
+	Vector normal = intersect->mShape.normalAtPoint(intersect->mPoint);
+	Vector lightToPoint = Point::vectorFromTo(this->mPointLight.getPoint(), intersect->mPoint);
 	normal.normalize();
 	lightToPoint.normalize();
 	float cosTheta = normal.dotWith(lightToPoint);
 
 	if (cosTheta <= 0)
-		return Color(0,0,0);
+		cosTheta *= -1;
+		//return new Color(0,0,0); // only light triangles facing light
 
-	float dotTimesDiffuse = cosTheta * intersect.mShape->getFinish().getDiffuse();
-	Color pointColor = intersect.mShape->getColor().copy();
-	pointColor.multiply(this->mPointLight.getColor());
-	pointColor.scale(dotTimesDiffuse);
+	float dotTimesDiffuse = cosTheta * intersect->mShape.getFinish().getDiffuse();
+	Color* pointColor = intersect->mShape.getColor().copy();
+	pointColor->multiply(this->mPointLight.getColor());
+	pointColor->scale(dotTimesDiffuse);
 	return pointColor;	
 }
 
@@ -243,3 +224,7 @@ void RayCaster::advanceCastPoint(){
 	}
 }
 
+RayCaster::~RayCaster() {
+	if (this->bitMap != NULL)
+		delete[] bitMap;
+}

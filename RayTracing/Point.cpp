@@ -6,7 +6,9 @@ Point::Point(float x, float y, float z){
 	this->z = z;
 }
 Point::Point(){
-	Point(0,0,0);
+	this->x = 0;
+	this->y = 0;
+	this->z = 0;
 }
 
 float Point::getX() const{
@@ -24,8 +26,8 @@ void Point::translate(Vector toAdd){
 	this->y += toAdd.getY();
 	this->z += toAdd.getZ();
 }
-Point Point::copy(){
-	return Point(this->x, this->y, this->z);
+Point* Point::copy(){
+	return new Point(this->x, this->y, this->z);
 }
 float Point::distance(Point other){
 	return sqrt(this->distanceSquared(other));

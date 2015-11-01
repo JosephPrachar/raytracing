@@ -6,7 +6,9 @@ Color::Color(float red, float green, float blue){
 	this->blue = blue;
 }
 Color::Color(){
-	Color(0,0,0);
+	this->red = 0;
+	this->green = 0;
+	this->blue = 0;
 }
 
 float Color::getRed() const{
@@ -51,8 +53,8 @@ void Color::add(Color toAdd){
 	this->green += toAdd.green;
 	this->blue += toAdd.blue;
 }
-Color Color::copy(){
-	return Color(this->red, this->green, this->blue);
+Color* Color::copy(){
+	return new Color(this->red, this->green, this->blue);
 }
 
 std::wstringstream& operator<<(std::wstringstream& os, const Color& obj){

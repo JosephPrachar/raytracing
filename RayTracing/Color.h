@@ -16,7 +16,7 @@ public:
 	void scaleForPrinting();
 	void multiply(Color toMult);
 	void add(Color toAdd);
-	Color copy();
+	Color* copy();
 private:
 	float red;
 	float green;

@@ -7,7 +7,9 @@ Vector::Vector(float x, float y, float z){
 }
 Vector::Vector()
 {
-	Vector(0,0,0);
+	this->x = 0;
+	this->y = 0;
+	this->z = 0;
 }
 
 float Vector::getX() const{
@@ -46,8 +48,8 @@ void Vector::subtract(Vector toSubtract){
 	this->y -= toSubtract.y;
 	this->z -= toSubtract.z;
 }
-Vector Vector::copy(){
-	return Vector(this->x, this->y, this->z);
+Vector* Vector::copy(){
+	return new Vector(x, y, z);
 }
 void Vector::updateLength(){
 	this->mLength = sqrt(pow(this->x, 2) + pow(this->y, 2) + pow(this->z, 2));

@@ -3,13 +3,13 @@
 
 class Intersection{
 public:
-	Intersection(Shape* shape, Point point);
+	Intersection(Triangle shape, Point point);
 	Intersection();
 
-	Shape* mShape;
+	Triangle mShape;
 	Point mPoint;
 
-	Intersection copy();
+	Intersection* copy();
 };
 
 inline bool operator==(const Intersection& lhs, const Intersection& rhs){

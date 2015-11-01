@@ -7,7 +7,10 @@ Finish::Finish(float ambient, float diffuse, float specular, float roughness){
 	this->mRough = roughness;	
 }
 Finish::Finish(){
-	Finish(0,0,0,0);
+	this->mAmbient = 0;
+	this->mDiffuse = 0;
+	this->mSpecular = 0;
+	this->mRough = 0;
 }
 
 float Finish::getAmbient() const{
@@ -23,8 +26,8 @@ float Finish::getRoughness() const{
 	return this->mRough;
 }
 
-Finish Finish::copy(){
-	return Finish(mAmbient, mDiffuse, mSpecular, mRough);
+Finish* Finish::copy(){
+	return new Finish(mAmbient, mDiffuse, mSpecular, mRough);
 }
 
 std::wstringstream& operator<<(std::wstringstream& os, const Finish& obj){
