@@ -14,26 +14,20 @@ RayCaster::RayCaster(Window view, Point eyePoint, vector<Triangle*> *shapeList, 
 
 	this->computeTime = -1;
 
-	bitMap = NULL;
+	bitMap = new byte[mView.width * mView.height * 3];
+	if (bitMap == NULL)
+		exit(1);
 }
 
 void RayCaster::castAllRays(){
+	std::clock_t start;
+	start = std::clock();
+
 	// calculate total size of buffer
 	long size = mView.width * mView.height * 3;
 
 	// allocate memory for findIntersectionPoints
 	Intersection* hitPointMem = new Intersection[this->mShapeList.size()];
-
-	if (bitMap == NULL) {
-		bitMap = new byte[size];
-		if (bitMap == NULL) exit(1);
-	} else {
-		return;
-	}
-
-	for (int i = 0; i < size; i++) {
-		bitMap[i] = 0;
-	}
 
 	// check for valid memory allocation
 	if (hitPointMem == NULL){
@@ -57,9 +51,12 @@ void RayCaster::castAllRays(){
 		delete result; // TODO: this gonna be slow
 		this->advanceCastPoint();
 	}
-
+	this->curX = mView.x_min;
+	this->curY = mView.y_max;
 	// free memory
 	delete[] hitPointMem;
+
+	this->computeTime = (std::clock() - start)/(double)CLOCKS_PER_SEC;
 }
 
 void RayCaster::printPicture(HDC hdc){
@@ -97,6 +94,7 @@ Color* RayCaster::castRay(Intersection* hitPointMem){
 		Color* pointLighting = computePointAndSpecular(intersect, hitPointMem);
 		ambientColorAddition->add(*pointLighting);
 
+		delete toReturn;
 		toReturn = ambientColorAddition;
 		delete pointLighting;
 		delete intersect;

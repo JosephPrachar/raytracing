@@ -163,6 +163,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		if (wParam == 'S') {		
 			rc->castAllRays();
+
+			std::string str = std::to_string(rc->computeTime);
+			MessageBoxA(hWnd, str.c_str (), NULL, 0);
 			needsRedraw = true;
 			InvalidateRect(hWnd, NULL, TRUE);
 		}
