@@ -1,0 +1,3 @@
+With dynamic copy methods and no leak: .59 sec
+Made copy methods return by val: .515 sec
+

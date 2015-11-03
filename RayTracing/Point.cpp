@@ -26,8 +26,8 @@ void Point::translate(Vector toAdd){
 	this->y += toAdd.getY();
 	this->z += toAdd.getZ();
 }
-Point* Point::copy(){
-	return new Point(this->x, this->y, this->z);
+Point Point::copy(){
+	return *this;//new Point(this->x, this->y, this->z);
 }
 float Point::distance(Point other){
 	return sqrt(this->distanceSquared(other));

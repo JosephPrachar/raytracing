@@ -35,20 +35,20 @@ void RayCaster::castAllRays(){
 	}
 
 	int count = 0;
+	Color result;
 
 	while (count < size) {
-		Color* result = this->castRay(hitPointMem);
-		result->scaleForPrinting();
+		result = this->castRay(hitPointMem);
+		result.scaleForPrinting();
 
 		// fill buffer with current pixel info
-		bitMap[count] = (byte)result->getRed();
+		bitMap[count] = (byte)result.getRed();
 		count++;
-		bitMap[count] = (byte)result->getGreen();
+		bitMap[count] = (byte)result.getGreen();
 		count++;
-		bitMap[count] = (byte)result->getBlue();
+		bitMap[count] = (byte)result.getBlue();
 		count++;
 
-		delete result; // TODO: this gonna be slow
 		this->advanceCastPoint();
 	}
 	this->curX = mView.x_min;
@@ -72,9 +72,9 @@ void RayCaster::printPicture(HDC hdc){
 	}
 }
 
-Color* RayCaster::castRay(Intersection* hitPointMem){
+Color RayCaster::castRay(Intersection* hitPointMem){
 
-	Color* toReturn = new Color(1.0, 1.0, 1.0);
+	Color toReturn = Color(1.0, 1.0, 1.0);
 
 	Point pt = Point(curX, curY, 0);
 	Vector v = Point::vectorFromTo(this->mEye, pt);
@@ -88,17 +88,14 @@ Color* RayCaster::castRay(Intersection* hitPointMem){
 			iSmall = this->shortestDistFromPoint(hitPointMem, length);
 		}
 		// extract closest intersection point so that hitPointsMem can be reused in findIntersectionPoints call by the specular color computation
-		Intersection *intersect = hitPointMem[iSmall].copy();		
+		Intersection intersect = hitPointMem[iSmall].copy();		
 
-		Color* ambientColorAddition = this->computeAmbientLight(&intersect->mShape);
-		Color* pointLighting = computePointAndSpecular(intersect, hitPointMem);
-		ambientColorAddition->add(*pointLighting);
+		Color ambientColorAddition = this->computeAmbientLight(&intersect.mShape);
+		Color pointLighting = computePointAndSpecular(&intersect, hitPointMem);
+		ambientColorAddition.add(pointLighting);
 
-		delete toReturn;
 		toReturn = ambientColorAddition;
-		delete pointLighting;
-		delete intersect;
-		//toReturn = intersect.mShape->getColor(); // uncomment for no lighting effects
+		//toReturn = intersect.mShape.getColor(); // uncomment for no lighting effects
 	}
 
 	return toReturn;
@@ -123,24 +120,23 @@ int RayCaster::findIntersectionPoints(Ray ray, Intersection* hitPointMem){
 	int count = 0;
 	for (int i = 0; i < this->mShapeList.size(); ++i){
 		bool hit = false;
-		Point* pt = this->mShapeList[i]->rayIntersection(ray);
-		if (pt != NULL){
-			hitPointMem[count] = Intersection(*this->mShapeList[i], *pt); // TODO: make intersection take triangle ptr again
+		Point pt = this->mShapeList[i]->rayIntersection(ray, &hit);
+		if (hit){
+			hitPointMem[count] = Intersection(*this->mShapeList[i], pt); // TODO: make intersection take triangle ptr again
 			count++;
-			delete pt;
 		}
 	}
 	return count;
 }
 
-Color* RayCaster::computeAmbientLight(Triangle* shape){
-	Color* toReturn = shape->getColor().copy();
-	toReturn->multiply(this->mAmbient);
-	toReturn->scale(shape->getFinish().getAmbient());
+Color RayCaster::computeAmbientLight(Triangle* shape){
+	Color toReturn = shape->getColor().copy();
+	toReturn.multiply(this->mAmbient);
+	toReturn.scale(shape->getFinish().getAmbient());
 	return toReturn;
 }
 
-Color* RayCaster::computePointAndSpecular(Intersection* intersect, Intersection* hitPointMem){
+Color RayCaster::computePointAndSpecular(Intersection* intersect, Intersection* hitPointMem){
 	//// do math...
 
 	//Vector normal = intersect.mShape->normalAtPoint(intersect.mPoint);
@@ -207,9 +203,9 @@ Color* RayCaster::computePointAndSpecular(Intersection* intersect, Intersection*
 		//return new Color(0,0,0); // only light triangles facing light
 
 	float dotTimesDiffuse = cosTheta * intersect->mShape.getFinish().getDiffuse();
-	Color* pointColor = intersect->mShape.getColor().copy();
-	pointColor->multiply(this->mPointLight.getColor());
-	pointColor->scale(dotTimesDiffuse);
+	Color pointColor = intersect->mShape.getColor().copy();
+	pointColor.multiply(this->mPointLight.getColor());
+	pointColor.scale(dotTimesDiffuse);
 	return pointColor;	
 }
 

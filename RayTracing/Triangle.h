@@ -9,11 +9,11 @@ public:
 	Color getColor() const;
 	Finish getFinish() const;
 
-	Point* rayIntersection(Ray toIntersect);
+	Point rayIntersection(Ray toIntersect, bool* hit);
 	bool triangleIntersection(Ray toIntersect, float* out);
 	Vector normalAtPoint(Point pt);
 	void alignNormalWithEyePt(Point eye);
-	Triangle* copy();
+	Triangle copy();
 
 private:
 	Point mOne;

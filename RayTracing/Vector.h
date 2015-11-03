@@ -16,7 +16,7 @@ public:
 	float dotWith(Vector other);
 	Vector crossWith(Vector other);
 	void subtract(Vector toSubtract);
-	Vector* copy();
+	Vector copy();
 
 private:
 	float x;

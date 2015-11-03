@@ -11,8 +11,8 @@ Intersection::Intersection():
 {
 }
 
-Intersection* Intersection::copy(){
-	return new Intersection(this->mShape, this->mPoint);
+Intersection Intersection::copy(){
+	return *this;//new Intersection(this->mShape, this->mPoint);
 }
 
 std::wstringstream& operator<<(std::wstringstream& os, const Intersection& obj){

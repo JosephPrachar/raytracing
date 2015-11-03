@@ -53,8 +53,8 @@ void Color::add(Color toAdd){
 	this->green += toAdd.green;
 	this->blue += toAdd.blue;
 }
-Color* Color::copy(){
-	return new Color(this->red, this->green, this->blue);
+Color Color::copy(){
+	return *this;//new Color(this->red, this->green, this->blue);
 }
 
 std::wstringstream& operator<<(std::wstringstream& os, const Color& obj){

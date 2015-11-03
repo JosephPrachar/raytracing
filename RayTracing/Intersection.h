@@ -9,7 +9,7 @@ public:
 	Triangle mShape;
 	Point mPoint;
 
-	Intersection* copy();
+	Intersection copy();
 };
 
 inline bool operator==(const Intersection& lhs, const Intersection& rhs){

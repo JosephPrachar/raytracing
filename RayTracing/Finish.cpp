@@ -26,8 +26,8 @@ float Finish::getRoughness() const{
 	return this->mRough;
 }
 
-Finish* Finish::copy(){
-	return new Finish(mAmbient, mDiffuse, mSpecular, mRough);
+Finish Finish::copy(){
+	return *this;//new Finish(mAmbient, mDiffuse, mSpecular, mRough);
 }
 
 std::wstringstream& operator<<(std::wstringstream& os, const Finish& obj){

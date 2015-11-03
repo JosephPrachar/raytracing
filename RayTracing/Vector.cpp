@@ -48,8 +48,8 @@ void Vector::subtract(Vector toSubtract){
 	this->y -= toSubtract.y;
 	this->z -= toSubtract.z;
 }
-Vector* Vector::copy(){
-	return new Vector(x, y, z);
+Vector Vector::copy(){
+	return *this;//new Vector(x, y, z);
 }
 void Vector::updateLength(){
 	this->mLength = sqrt(pow(this->x, 2) + pow(this->y, 2) + pow(this->z, 2));

@@ -7,7 +7,7 @@ public:
 	RayCaster(Window view, Point eyePoint, std::vector<Triangle*> *shapeList, Color ambientColor, Light pointLight);
 	~RayCaster();
 
-	Color* castRay(Intersection* hitPointMem);
+	Color castRay(Intersection* hitPointMem);
 	void castAllRays();
 	void printPicture(HDC hdc);
 
@@ -25,8 +25,8 @@ private:
 	
 	int findIntersectionPoints(Ray ray, Intersection* hitPointMem);
 
-	Color* computeAmbientLight(Triangle* shape);
-	Color* computePointAndSpecular(Intersection* intersect, Intersection* hitPointMem);
+	Color computeAmbientLight(Triangle* shape);
+	Color computePointAndSpecular(Intersection* intersect, Intersection* hitPointMem);
 
 	void advanceCastPoint();
 
