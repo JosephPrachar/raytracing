@@ -27,8 +27,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	Window* view = new Window(-60, 100, -40, 120, 1024, 768);
-	Point* eye = new Point(0, 0, 80);
+	Window* view = new Window(-10, 70, -10, 50, 801, 600);
+	Point* eye = new Point(0, 0, 100);
 	Color* ambientColor = new Color(1, 1, 1);
 	Light* pointLight = new Light(Point(0, 0, 100), Color(1.5, 1.5, 1.5));
 
@@ -113,7 +113,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+      0, 0, 1150, 850, NULL, NULL, hInstance, NULL);
 
    if (!hWnd)
    {
