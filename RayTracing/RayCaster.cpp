@@ -118,7 +118,7 @@ int RayCaster::shortestDistFromPoint(Intersection* hitPoints, int length){
 
 int RayCaster::findIntersectionPoints(Ray ray, Intersection* hitPointMem){	
 	int count = 0;
-	for (int i = 0; i < this->mShapeList.size(); ++i){
+	for (unsigned i = 0; i < this->mShapeList.size(); ++i){
 		bool hit = false;
 		Point pt = this->mShapeList[i]->rayIntersection(ray, &hit);
 		if (hit){

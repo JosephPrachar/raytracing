@@ -36,6 +36,10 @@ float Point::distanceSquared(Point other){
 	return pow(other.x - this->x, 2) + pow(other.y - this->y, 2) + pow(other.z - this->z, 2);
 }
 
+Vector Point::toVector() {
+	return Vector(x, y, z);
+}
+
 Vector Point::vectorFromTo(Point from, Point to){
 	return Vector(to.x - from.x, to.y - from.y, to.z - from.z);
 }

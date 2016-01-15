@@ -15,6 +15,8 @@ public:
 	float distance(Point other);
 	float distanceSquared(Point other);
 
+	Vector toVector();
+
 	static Vector differenceVector(Point one, Point two);
 	static Vector vectorFromTo(Point from, Point to);
 

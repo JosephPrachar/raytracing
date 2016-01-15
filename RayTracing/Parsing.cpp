@@ -34,7 +34,7 @@ void readTriangles(string pointsFile, string verticiesFile, vector<Triangle*> &l
 	readVerticies(verticiesFile, verticies);
 	readPoints(pointsFile, points);
 
-	for (int i = 0; i < verticies.size(); i++) {
+	for (unsigned i = 0; i < verticies.size(); i++) {
 		// TODO: bounds check
 		list.push_back(new Triangle(color, finish, 
 			points[verticies[i][0]], points[verticies[i][1]], points[verticies[i][2]]));

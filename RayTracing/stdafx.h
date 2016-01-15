@@ -42,6 +42,7 @@ typedef unsigned char byte;
 #include "Intersection.h"
 #include "Light.h"
 #include "Window.h"
+#include "Camera.h"
 
 #include "RayCaster.h"
 #include "Parsing.h"
