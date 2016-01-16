@@ -2,19 +2,19 @@
 using namespace std;
 #include <vector>
 
-RayCaster::RayCaster(Window view, Point eyePoint, vector<Triangle*> *shapeList, Color ambientColor, Light pointLight):
+#define PIXELS_X 800
+#define PIXELS_Y 600
+
+RayCaster::RayCaster(Camera view, Point eyePoint, vector<Triangle*> *shapeList, Color ambientColor, Light pointLight):
 	mView(view),
 	mEye(eyePoint),
 	mShapeList(*shapeList),
 	mAmbient(ambientColor),
 	mPointLight(pointLight)
 {
-	this->curX = mView.x_min;
-	this->curY = mView.y_max;
-
 	this->computeTime = -1;
 
-	bitMap = new byte[mView.width * mView.height * 3];
+	bitMap = new byte[PIXELS_X * PIXELS_Y * 3];  // TODO: remove constants
 	if (bitMap == NULL)
 		exit(1);
 }
@@ -24,7 +24,7 @@ void RayCaster::castAllRays(){
 	start = std::clock();
 
 	// calculate total size of buffer
-	long size = mView.width * mView.height * 3;
+	long size = PIXELS_X * PIXELS_Y * 3;
 
 	// allocate memory for findIntersectionPoints
 	Intersection* hitPointMem = new Intersection[this->mShapeList.size()];
@@ -49,10 +49,9 @@ void RayCaster::castAllRays(){
 		bitMap[count] = (byte)result.getBlue();
 		count++;
 
-		this->advanceCastPoint();
+		this->mView.advanceCastPoint();
 	}
-	this->curX = mView.x_min;
-	this->curY = mView.y_max;
+	this->mView.resetCastPoint();
 	// free memory
 	delete[] hitPointMem;
 
@@ -60,12 +59,12 @@ void RayCaster::castAllRays(){
 }
 
 void RayCaster::printPicture(HDC hdc){
-	long size = mView.width * mView.height * 3;
+	long size = PIXELS_X * PIXELS_Y * 3;
 
 	// keep track of current writing position
 	long pos = 0;
-	for (int y = 0; y < mView.height; y++) {
-		for (int x = 0; x < mView.width; x++) {
+	for (int y = 0; y < PIXELS_Y; y++) {
+		for (int x = 0; x < PIXELS_X; x++) {
 			SetPixel(hdc, x, y, RGB(bitMap[pos], bitMap[pos+1], bitMap[pos+2]));
 			pos += 3;
 		}
@@ -76,9 +75,7 @@ Color RayCaster::castRay(Intersection* hitPointMem){
 
 	Color toReturn = Color(1.0, 1.0, 1.0);
 
-	Point pt = Point(curX, curY, 0);
-	Vector v = Point::vectorFromTo(this->mEye, pt);
-	Ray ray = Ray(this->mEye, v);
+	Ray ray = this->mView.getCastRay();
 	
 	int length = this->findIntersectionPoints(ray, hitPointMem);
 
@@ -209,16 +206,11 @@ Color RayCaster::computePointAndSpecular(Intersection* intersect, Intersection* 
 	return pointColor;	
 }
 
-void RayCaster::advanceCastPoint(){
-	// move current point to next pixel
-	this->curX += this->mView.delta_x;
-	if (this->curX >= this->mView.x_max){
-		this->curX = this->mView.x_min;
-		this->curY -= this->mView.delta_y;
-	}
-}
-
 RayCaster::~RayCaster() {
 	if (this->bitMap != NULL)
 		delete[] bitMap;
+}
+
+Camera* RayCaster::getCamera(void) {
+	return &this->mView;
 }

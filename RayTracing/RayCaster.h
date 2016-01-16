@@ -4,20 +4,19 @@ using namespace std;
 
 class RayCaster {
 public:
-	RayCaster(Window view, Point eyePoint, std::vector<Triangle*> *shapeList, Color ambientColor, Light pointLight);
+	RayCaster(Camera view, Point eyePoint, std::vector<Triangle*> *shapeList, Color ambientColor, Light pointLight);
 	~RayCaster();
 
 	Color castRay(Intersection* hitPointMem);
 	void castAllRays();
 	void printPicture(HDC hdc);
 
+	Camera* getCamera();
+
 	double computeTime;
 private:
-	float curX;
-	float curY;
-
 	byte* bitMap;
-	Window mView;
+	Camera mView;
 	Point mEye;
 	std::vector<Triangle*> mShapeList;
 	Color mAmbient;
@@ -27,8 +26,6 @@ private:
 
 	Color computeAmbientLight(Triangle* shape);
 	Color computePointAndSpecular(Intersection* intersect, Intersection* hitPointMem);
-
-	void advanceCastPoint();
 
 	int shortestDistFromPoint(Intersection* hitPoints, int length);
 };

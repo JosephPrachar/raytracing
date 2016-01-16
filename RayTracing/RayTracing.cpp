@@ -27,7 +27,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	Window* view = new Window(-10, 70, -10, 50, 801, 600);
+	//Window* view = new Window(-10, 70, -10, 50, 801, 600);
+	Camera* cam = new Camera();
 	Point* eye = new Point(0, 0, 100);
 	Color* ambientColor = new Color(1, 1, 1);
 	Light* pointLight = new Light(Point(0, 0, 100), Color(1.5, 1.5, 1.5));
@@ -36,7 +37,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	readTriangles("C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\meshPoints.in",
 		"C:\\Users\\joseph\\Documents\\Projects\\RayTracing\\C++\\RayTracing\\Debug\\meshVerticies.in", *shapes);
 
-	rc = new RayCaster(*view, *eye, shapes, *ambientColor, *pointLight);
+	rc = new RayCaster(*cam, *eye, shapes, *ambientColor, *pointLight);
 
 
 	MSG msg;
@@ -141,6 +142,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
+	Camera* cam = rc->getCamera();
 
 	switch (message)
 	{
@@ -160,14 +162,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 		break;
-	case WM_KEYDOWN:
-		if (wParam == 'S') {		
+	case WM_KEYDOWN:		
+		if (wParam == 'Z') {		
 			rc->castAllRays();
 
 			std::string str = std::to_string(rc->computeTime);
-			MessageBoxA(hWnd, str.c_str (), NULL, 0);
+			//MessageBoxA(hWnd, str.c_str (), NULL, 0);
 			needsRedraw = true;
 			InvalidateRect(hWnd, NULL, TRUE);
+		} else if (wParam == 'Q') { // X+   Point move
+			cam->moveBy(Vector(1, 0, 0));
+		} else if (wParam == 'A') { // X-
+			cam->moveBy(Vector(-1, 0, 0));
+		} else if (wParam == 'W') { // Y+
+			cam->moveBy(Vector(0, 1, 0));
+		} else if (wParam == 'S') { // Y-
+			cam->moveBy(Vector(0, -1, 0));
+		} else if (wParam == 'E') { // Z+
+			cam->moveBy(Vector(0, 0, 1));
+		} else if (wParam == 'D') { // Z-
+			cam->moveBy(Vector(0, 0, -1));
+		} else if (wParam == 'R') { // X+   Rotate
+			cam->rotate(Vector(.1, 0, 0));
+		} else if (wParam == 'F') { // X-
+			cam->rotate(Vector(-.1, 0, 0));
+		} else if (wParam == 'T') { // Y+
+			cam->rotate(Vector(0, .1, 0));
+		} else if (wParam == 'G') { // Y-
+			cam->rotate(Vector(0, -.1, 0));
+		} else if (wParam == 'Y') { // Z+
+			cam->rotate(Vector(0, 0, .1));
+		} else if (wParam == 'H') { // Z-
+			cam->rotate(Vector(0, 0, -.1));
 		}
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
