@@ -140,8 +140,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
+	int savedDC;
+	int width;
+	int height;
 	PAINTSTRUCT ps;
 	HDC hdc;
+	HDC backbuffDC;
+	HBITMAP backbuffer;
+	HBRUSH hBrush;
+	RECT rect;
 	Camera* cam = rc->getCamera();
 
 	switch (message)
@@ -164,12 +171,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_KEYDOWN:		
 		if (wParam == 'Z') {		
-			rc->castAllRays();
+		rc->castAllRays();
 
-			std::string str = std::to_string(rc->computeTime);
-			//MessageBoxA(hWnd, str.c_str (), NULL, 0);
-			needsRedraw = true;
-			InvalidateRect(hWnd, NULL, TRUE);
+		//std::string str = std::to_string(rc->computeTime);
+		//MessageBoxA(hWnd, str.c_str (), NULL, 0);
+		needsRedraw = true;
+		InvalidateRect(hWnd, NULL, TRUE);
+
 		} else if (wParam == 'Q') { // X+   Point move
 			cam->moveBy(Vector(1, 0, 0));
 		} else if (wParam == 'A') { // X-
@@ -195,13 +203,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		} else if (wParam == 'H') { // Z-
 			cam->rotate(Vector(0, 0, -.1));
 		}
+
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 
+		
+        GetClientRect(hWnd, &rect);
+        width=rect.right;
+        height=rect.bottom;
+
+        backbuffDC = CreateCompatibleDC(hdc);
+
+        backbuffer = CreateCompatibleBitmap( hdc, width, height);
+
+        savedDC = SaveDC(backbuffDC);
+        SelectObject( backbuffDC, backbuffer );
+        hBrush = CreateSolidBrush(RGB(255,255,255));
+        FillRect(backbuffDC,&rect,hBrush);
+        DeleteObject(hBrush);
+
 		if (needsRedraw) {
-			rc->printPicture(hdc);
+			rc->printPicture(backbuffDC);
 			needsRedraw = false;
 		}
+
+        BitBlt(hdc,0,0,width,height,backbuffDC,0,0,SRCCOPY);
+        RestoreDC(backbuffDC,savedDC);
+
+        DeleteObject(backbuffer);
+        DeleteDC(backbuffDC);
 
 		EndPaint(hWnd, &ps);
 		break;

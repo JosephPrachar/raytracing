@@ -17,6 +17,7 @@ RayCaster::RayCaster(Camera view, Point eyePoint, vector<Triangle*> *shapeList, 
 	bitMap = new byte[PIXELS_X * PIXELS_Y * 3];  // TODO: remove constants
 	if (bitMap == NULL)
 		exit(1);
+
 }
 
 void RayCaster::castAllRays(){

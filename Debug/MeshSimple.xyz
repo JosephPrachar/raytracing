@@ -1,0 +1,14 @@
+AT3D_XYZ V01.00 Mesh A
+Rows 3
+Columns 3
+Order By_Row
+Data
+-1 -1 2
+0 -1 0
+1 -1 2
+-1 0 0
+0 0 -6
+1 0 0
+-1 1 0
+0 1 0
+1 1 0
